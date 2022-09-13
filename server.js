@@ -4,7 +4,11 @@ let cors = require("cors");
 let bcrypt = require("bcrypt");
 let cookieParser = require("cookie-parser");
 let path = require("path");
-
+// HOME
+let Menu = require("./database/models/menu.js")
+let Banner = require("./database/models/banner.js")
+let Event = require("./database/models/event.js")
+// 
 let app = express();
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
@@ -86,6 +90,42 @@ app.post("/adminRegister", async (req, res) => {
   }
 });
 //
+// HOME PAGE
+app.get("/getMenus",async(req,res)=>{
+  try{
+      let menus = await Menu.find();
+    
+      res.status(200).json({success:true,message:"Successfuly get list of menus",result:menus})
+   
+  }catch(error){
+    console.log(error)
+    res.json({success:false,message:error.message})
+  }
+})
+
+app.get("/getBanner",async (req,res)=>{
+  try{
+    let banner = await Banner.findOne();
+  
+    res.status(200).json({success:true,message:"Successfuly get Slider items",result:banner})
+ 
+}catch(error){
+  console.log(error)
+  res.json({success:false,message:error.message})
+}
+})
+
+app.get("/getEvents",async(req,res)=>{
+  try{
+      let event = await Event.find();
+    
+      res.status(200).json({success:true,message:"Successfuly get events list",result:event})
+   
+  }catch(error){
+    console.log(error)
+    res.json({success:false,message:error.message})
+  }
+})
 
 let port = process.env.PORT || 9000;
 app.listen(port, () => console.log("Server listenning on port ", port));
