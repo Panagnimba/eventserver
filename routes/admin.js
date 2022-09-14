@@ -168,8 +168,11 @@ router.get("/getEvents",async(req,res)=>{
 })
 
 router.post("/deleteEvent",async(req,res)=>{
+  let path = "./uploads/event"
   try{
     await Event.deleteOne({_id:req.body.id})
+    let imgName = `${req.body.id}.png`
+    fs.unlinkSync(`${path}/${imgName}`) //delete file 
     res.status(200).json({success:true,message:"Evènement supprimé avec succès"})
   }catch(error){
     console.log(error)
