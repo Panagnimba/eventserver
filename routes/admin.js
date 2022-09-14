@@ -72,15 +72,19 @@ router.post('/saveBanner',async(req,res)=>{
           else
           {
             let decomp = item.img.split('/') //exemple ['http:', '', 'localhost:9000', 'banner', 'item-1.png']
-            let it = decomp[decomp.length - 1] // get the last == image name (item-1)
+            let it = decomp[decomp.length - 1] // get the last == image name (item-1.png)
             // 
-            
             try{
-              let data = fs.readFileSync(`${path}/${it}`,'utf8')
-            }catch(e){
-              data.items.splice(i, 1); // delete this element
-            }
-           
+                if(fs.existsSync(`${path}/${it}`,'utf8')){
+                  fs.renameSync( `${path}/${it}`, `${path}/item-${i+1}.png`)
+                  item.img = `${serverName}/banner/item-${i+1}.png`
+                  console.log("rename---------------------------")
+                }
+                else
+                  data.items.splice(i, 1); // delete this element   
+              }catch(e){
+               console.log(e.message)
+              }
           }
         });
       // ----------- Now store data to the database----------
