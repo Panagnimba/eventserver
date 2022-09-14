@@ -124,17 +124,23 @@ router.post("/saveNewEvent",async(req,res)=>{
   let path = "./uploads/event"
   let data = req.body
     try{
+       // ---------- define the image name --------------
+            let myEvent = new Event(data) // event to save if id is null
+            let imgName = ""
+            if(req.body._id==null || req.body._id==undefined)
+              imgName = myEvent._id
+            else
+              imgName = req.body._id
        // ---------- image saving on the server--------------
        if(data.img.includes('data:image')){
-        let imgName = `${Date.now()}.png`
+        imgName = `${imgName}.png`
         let Bgbase64Data = data.img.split(",")[1]
         fs.writeFileSync(`${path}/${imgName}`, Bgbase64Data, 'base64');
         data.img = `${serverName}/event/${imgName}`
       }
       if(req.body._id==null || req.body._id==undefined){
-        // ------------------------------------------
-          let event = new Event(data)
-          await event.save()
+        // ------------------------------------------  
+          await myEvent.save()
           res.status(200).json({success:true,message:"Evènement Créé avec succès"})
         // ------------------------------------------
       }
