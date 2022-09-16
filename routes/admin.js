@@ -136,7 +136,7 @@ router.post("/saveNewEvent",async(req,res)=>{
         imgName = `${imgName}.png`
         let Bgbase64Data = data.img.split(",")[1]
         fs.writeFileSync(`${path}/${imgName}`, Bgbase64Data, 'base64');
-        data.img = `${serverName}/event/${imgName}`
+        myEvent.img = `${serverName}/event/${imgName}`
       }
       if(req.body._id==null || req.body._id==undefined){
         // ------------------------------------------  
