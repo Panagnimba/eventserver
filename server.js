@@ -127,5 +127,16 @@ app.get("/getEvents",async(req,res)=>{
   }
 })
 
+app.get("/getEvent/:id",async(req,res)=>{
+  try{
+      let event = await Event.find({_id:req.params.id});
+      res.status(200).json({success:true,message:"Successfuly get events list",result:event[0]})
+   
+  }catch(error){
+    console.log(error)
+    res.json({success:false,message:error.message})
+  }
+})
+
 let port = process.env.PORT || 9000;
 app.listen(port, () => console.log("Server listenning on port ", port));
