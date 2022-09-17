@@ -91,13 +91,13 @@ router.post('/saveBanner',async(req,res)=>{
       //------------ Contening image path store in server----
       if(req.body._id==null || req.body._id==undefined)
       {
-          let banner = new Banner(req.body)
+          let banner = new Banner(data)
           await banner.save()
           res.status(200).json({success:true,message:"Slider Créer avec succès"})
       }
       else
       {
-        await Banner.updateOne({_id:req.body._id},{bgImage:req.body.bgImage,items:req.body.items})
+        await Banner.updateOne({_id:req.body._id},{bgImage:data.bgImage,items:data.items})
         res.json({success:true,message:"Mise à jour du slider réussie"})
       }
   }catch(error){
