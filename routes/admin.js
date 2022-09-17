@@ -138,6 +138,7 @@ router.post("/saveNewEvent",async(req,res)=>{
         fs.writeFileSync(`${path}/${imgName}`, Bgbase64Data, 'base64');
         myEvent.img = `${serverName}/event/${imgName}`
       }
+      
       if(req.body._id==null || req.body._id==undefined){
         // ------------------------------------------  
           await myEvent.save()
@@ -145,7 +146,7 @@ router.post("/saveNewEvent",async(req,res)=>{
         // ------------------------------------------
       }
       else{
-        await Event.updateOne({_id:req.body._id},data)
+        await Event.updateOne({_id:req.body._id},myEvent)
         res.json({success:true,message:"Evenement modifier avec succès"})
       }
     
