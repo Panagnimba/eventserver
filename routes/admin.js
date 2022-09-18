@@ -4,7 +4,8 @@ let router = express.Router();
 let connection = require("../database/connection.js")
 let Menu = require("../database/models/menu.js")
 let Banner = require("../database/models/banner.js")
-let Event = require("../database/models/event.js")
+let Event = require("../database/models/event.js");
+const { Console } = require("console");
 // connection to database
 let conn = connection();
 // Ajout et update handle des menus
@@ -138,7 +139,7 @@ router.post("/saveNewEvent",async(req,res)=>{
         fs.writeFileSync(`${path}/${imgName}`, Bgbase64Data, 'base64');
         myEvent.img = `${serverName}/event/${imgName}`
       }
-      
+
       if(req.body._id==null || req.body._id==undefined){
         // ------------------------------------------  
           await myEvent.save()
