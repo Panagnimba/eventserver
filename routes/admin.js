@@ -5,7 +5,6 @@ let connection = require("../database/connection.js")
 let Menu = require("../database/models/menu.js")
 let Banner = require("../database/models/banner.js")
 let Event = require("../database/models/event.js");
-let ImageKit = require("../imagekit/imagekit.js"); // for file upload
 // connection to database
 let conn = connection();
 // Ajout et update handle des menus
