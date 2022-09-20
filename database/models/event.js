@@ -3,6 +3,7 @@ let mongoose = require("mongoose")
 let eventSchema = new mongoose.Schema({
 
         img: {type:String,required:true,minLength:5},
+        fileId: {type:String,required:true,minLength:5},
         categorie: {type:String,required:true},
         intitule: {type:String,required:true},
         artiste: {type:String,required:true},
