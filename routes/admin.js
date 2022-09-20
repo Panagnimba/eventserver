@@ -51,40 +51,40 @@ router.post("/deleteMenu",async(req,res)=>{
   })
 
 //---------- Banner ---------------------//
-router.post('/saveBanner',async(req,res)=>{
-  let data = req.body
-  try{
-       // ---------- background image saving on the server--------------
-       if(data.bgImage.includes('data:image')){
-        let response = await ImageKit.upload({file : data.bgImage,fileName : "banner_bg.png"});
-        data.bgImage = response.url
-      }
-      // ---------- Items images saving on the server -----------------
-      for(i=0; i<data.items.length;i++){
-        if(data.items[i].img.includes('data:image')){
-          let response =  await ImageKit.upload({file : data.items[i].img,fileName : "banner_item.png"});
-          data.items[i].img = response.url
-        }
-      } 
-      // ----------- Now store data to the database----------
-      //------------ Contening image path store in server----
-      if(data._id==null || data._id==undefined)
-      {
-          let banner = new Banner(data)
-          await banner.save()
-          res.status(200).json({success:true,message:"Slider Créer avec succès"})
-      }
-      else
-      {
+// router.post('/saveBanner',async(req,res)=>{
+//   let data = req.body
+//   try{
+//        // ---------- background image saving on the server--------------
+//        if(data.bgImage.includes('data:image')){
+//         let response = await ImageKit.upload({file : data.bgImage,fileName : "banner_bg.png"});
+//         data.bgImage = response.url
+//       }
+//       // ---------- Items images saving on the server -----------------
+//       for(i=0; i<data.items.length;i++){
+//         if(data.items[i].img.includes('data:image')){
+//           let response =  await ImageKit.upload({file : data.items[i].img,fileName : "banner_item.png"});
+//           data.items[i].img = response.url
+//         }
+//       } 
+//       // ----------- Now store data to the database----------
+//       //------------ Contening image path store in server----
+//       if(data._id==null || data._id==undefined)
+//       {
+//           let banner = new Banner(data)
+//           await banner.save()
+//           res.status(200).json({success:true,message:"Slider Créer avec succès"})
+//       }
+//       else
+//       {
    
-        await Banner.updateOne({_id:data._id},{bgImage:data.bgImage,items:data.items})
-        res.json({success:true,message:"Mise à jour du slider réussie"})
-      }
-  }catch(error){
-    console.log(error.message)
-    res.json({success:false,message:error.message})
-  }
-})
+//         await Banner.updateOne({_id:data._id},{bgImage:data.bgImage,items:data.items})
+//         res.json({success:true,message:"Mise à jour du slider réussie"})
+//       }
+//   }catch(error){
+//     console.log(error.message)
+//     res.json({success:false,message:error.message})
+//   }
+// })
 
 router.get("/getBanner",async (req,res)=>{
   try{
@@ -100,32 +100,32 @@ router.get("/getBanner",async (req,res)=>{
 
 //---------- Event ---------------------//
 
-router.post("/saveNewEvent",async(req,res)=>{
-  let data = req.body
-  try{
-          // ---------- image saving on the server--------------
-          if(data.img.includes('data:image')){
-            let response = await ImageKit.upload({file : data.img,fileName : "event.png"});
-            data.img = response.url
-            data.fileId = response.fileId
-          }
+// router.post("/saveNewEvent",async(req,res)=>{
+//   let data = req.body
+//   try{
+//           // ---------- image saving on the server--------------
+//           if(data.img.includes('data:image')){
+//             let response = await ImageKit.upload({file : data.img,fileName : "event.png"});
+//             data.img = response.url
+//             data.fileId = response.fileId
+//           }
       
-          if(data._id==null || data._id==undefined){
-            let myEvent = new Event(data);
-            await myEvent.save()
-            res.status(200).json({success:true,message:"Evènement Créé avec succès"})
-        }
-        else{
-          await Event.updateOne({_id:data._id},data)
-          res.json({success:true,message:"Evenement modifier avec succès"})
-        }
-    }
-    catch(error){
-      console.log(error)
-      res.json({success:false,message:error.message})
-    }
+//           if(data._id==null || data._id==undefined){
+//             let myEvent = new Event(data);
+//             await myEvent.save()
+//             res.status(200).json({success:true,message:"Evènement Créé avec succès"})
+//         }
+//         else{
+//           await Event.updateOne({_id:data._id},data)
+//           res.json({success:true,message:"Evenement modifier avec succès"})
+//         }
+//     }
+//     catch(error){
+//       console.log(error)
+//       res.json({success:false,message:error.message})
+//     }
  
-})
+// })
 
 router.get("/getEvents",async(req,res)=>{
   try{
