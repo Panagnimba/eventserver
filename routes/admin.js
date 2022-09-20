@@ -8,8 +8,6 @@ let Event = require("../database/models/event.js");
 let ImageKit = require("../imagekit/imagekit.js"); // for file upload
 
 
-
-
 // connection to database
 let conn = connection();
 // Ajout et update handle des menus
