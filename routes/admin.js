@@ -7,9 +7,9 @@ let Banner = require("../database/models/banner.js")
 let Event = require("../database/models/event.js");
 // for file upload//  let ImageKit = require("../imagekit/imagekit.js"); 
 
-var ImageKi = require("imagekit");
+let ImageKi = require("imagekit");
 
-var ImageKit = new ImageKi({
+let ImageKit = new ImageKi({
     publicKey : "public_xGsp4GcRJJjwYluoGenupRC2gy4=",
     privateKey : "private_sc+xzMyqqKwiwRuTHpQN2YKDSj0=",
     urlEndpoint : "https://ik.imagekit.io/g8k0fkvg9/Events"

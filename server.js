@@ -28,6 +28,10 @@ app.use(cookieParser());
 
 
 let connection = require("./database/connection.js");
+let User = require("./database/models/user.js");
+let UserAuth = require("./auth/user-auth");
+let checkLoggin = require("./auth/checkUserAuthentication");
+// 
 let Admin = require("./database/models/admin.js");
 let AdminAuth = require("./auth/admin-auth");
 let Auth = require("./auth/authenticate_middleware");
@@ -37,7 +41,7 @@ let conn = connection();
 // Routes
 let adminRoute = require("./routes/admin");
 app.use("/eventh24", Auth.isAdminAuthenticated, adminRoute);
-
+// 
 app.post("/adminLoggin", async (req, res) => {
   try {
     let docs = await Admin.find({ username: req.body.username });
@@ -92,6 +96,80 @@ app.post("/adminRegister", async (req, res) => {
   }
 });
 //
+app.post("/userRegister", async (req, res) => {
+  try {
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(req.body.password, salt);
+     // adaption du numero de telephone
+     req.body.tel = req.body.tel.replace(/\s/g,'')
+     let phone = req.body.tel;
+     if (
+       !phone.startsWith("+226") &&
+       !phone.startsWith("00226")
+     ) {
+       req.body.tel = `+226${phone}`;
+     }
+     if (phone.startsWith("00226")) {
+       req.body.tel = `+226${phone.slice(5)}`;
+     }
+    //
+    let user = new User({
+      nom: req.body.nom,
+      prenom: req.body.prenom,
+      email: req.body.email,
+      tel: req.body.tel,
+      password: hash,
+    });
+    await user.save();
+
+    let userDoc = { _id: user._id, tel: user.tel, prenom: user.prenom };
+    let token = UserAuth.generateToken(userDoc);
+    res.status(200).json({
+      success: true,
+      message: "Compte créé avec succès",
+      token: token,
+      user:userDoc
+    });
+
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+});
+app.post("/userLoggin", async (req, res) => {
+  try {
+        // adaption du numero de telephone
+        req.body.tel = req.body.tel.replace(/\s/g,'')
+        let phone = req.body.tel;
+        if (
+          !phone.startsWith("+226") &&
+          !phone.startsWith("00226")
+        ) {
+          req.body.tel = `+226${phone}`;
+        }
+        if (phone.startsWith("00226")) {
+          req.body.tel = `+226${phone.slice(5)}`;
+        }
+        // 
+        let user = await User.findOne({ tel: req.body.tel });
+        match = bcrypt.compareSync(req.body.password, user.password);
+        if (match) {
+          let userDoc = { _id: user._id, tel: user.tel, prenom: user.prenom };
+          let token = UserAuth.generateToken(userDoc);
+          res.status(200).json({
+            success: true,
+            message: "Authentification réussie",
+            token: token,
+            user:userDoc
+          });
+        }
+        else
+          res.json({ success: false, message: "Authentification échouée" });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+});
 // HOME PAGE
 app.get("/getMenus",async(req,res)=>{
   try{
