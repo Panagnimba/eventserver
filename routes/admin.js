@@ -5,6 +5,7 @@ let connection = require("../database/connection.js")
 let Menu = require("../database/models/menu.js")
 let Banner = require("../database/models/banner.js")
 let Event = require("../database/models/event.js");
+let Paralax = require("../database/models/paralax.js");
 // for file upload//  let ImageKit = require("../imagekit/imagekit.js"); 
 
 let ImageKi = require("imagekit");
@@ -37,6 +38,7 @@ router.post("/newMenu",async(req,res)=>{
       res.json({success:false,message:error.message})
     }
   })
+
 
 router.get("/getMenus",async(req,res)=>{
     try{
@@ -160,5 +162,47 @@ router.post("/deleteEvent",async(req,res)=>{
     console.log(error)
     res.json({success:false,message:error.message})
   }
+})
+
+// Paralax
+router.post('/saveParalax',async(req,res)=>{
+  let data = req.body
+  try{
+       // ---------- background image saving on the server--------------
+       if(data.bgImage.includes('data:image')){
+        let response = await ImageKit.upload({file : data.bgImage,fileName : "paralax_bg.png"});
+        data.bgImage = response.url
+        data.fileId = response.fileId
+      }
+ 
+      // ----------- Now store data to the database----------
+      //------------ Contening image path store in server----
+      if(data._id==null || data._id==undefined)
+      {
+          let paralax = new Paralax(data)
+          await paralax.save()
+          res.status(200).json({success:true,message:"Paralax Créer avec succès"})
+      }
+      else
+      {
+   
+        await Paralax.updateOne({_id:data._id},{bgImage:data.bgImage,textContent:data.textContent})
+        res.json({success:true,message:"Mise à jour du paralax réussie"})
+      }
+  }catch(error){
+    console.log(error.message)
+    res.json({success:false,message:error.message})
+  }
+})
+router.get("/getParalax",async (req,res)=>{
+  try{
+    let paralax = await Paralax.findOne();
+  
+    res.status(200).json({success:true,message:"Successfuly get paralax",result:paralax})
+ 
+}catch(error){
+  console.log(error)
+  res.json({success:false,message:error.message})
+}
 })
 module.exports = router

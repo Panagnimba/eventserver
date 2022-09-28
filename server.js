@@ -8,6 +8,7 @@ let path = require("path");
 let Menu = require("./database/models/menu.js")
 let Banner = require("./database/models/banner.js")
 let Event = require("./database/models/event.js")
+let Paralax = require("./database/models/paralax.js");
 // 
 let app = express();
 app.use(express.json({ limit: "50mb" }));
@@ -217,6 +218,17 @@ app.get("/getEvent/:id",async(req,res)=>{
     res.json({success:false,message:error.message})
   }
 })
-
+// Paralax
+app.get("/getParalax",async (req,res)=>{
+  try{
+    let paralax = await Paralax.findOne();
+  
+    res.status(200).json({success:true,message:"Successfuly get paralax",result:paralax})
+ 
+}catch(error){
+  console.log(error)
+  res.json({success:false,message:error.message})
+}
+})
 let port = process.env.PORT || 9000;
 app.listen(port, () => console.log("Server listenning on port ", port));
