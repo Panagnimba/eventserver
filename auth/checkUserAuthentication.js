@@ -6,12 +6,11 @@ function isUserAuthenticated(req,res,next){
     if(token == null || token == undefined) res.sendStatus(401)
     
     console.log("///////// Verify User Authentication //////////")
-
     let isAuth = UserAuth.verifyToken(token)
     if(isAuth)
         next()
     else
-    res.json({success:false,message:'Token Invalide'})
+    res.json({success:false,isNotAuth:true,message:'Token Invalide'})
 }
 
 module.exports.isUserAuthenticated = isUserAuthenticated

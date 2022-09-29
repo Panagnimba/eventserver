@@ -41,7 +41,9 @@ let conn = connection();
 
 // Routes
 let adminRoute = require("./routes/admin");
+let userRoute = require("./routes/user");
 app.use("/eventh24", Auth.isAdminAuthenticated, adminRoute);
+app.use("/user", checkLoggin.isUserAuthenticated, userRoute);
 // 
 app.post("/adminLoggin", async (req, res) => {
   try {
