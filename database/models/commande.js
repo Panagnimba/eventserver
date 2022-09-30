@@ -6,6 +6,7 @@ let commandeSchema = new mongoose.Schema({
     price:{type: Number,required: true},
     img:{type: String,required: true},
     intitule:{type: String,required: true},
+    eventDate: {type:String,required:true},
     beneficiaireName:{type: String,},
     // 
     commandeDate:{type: Date,default: Date.now},

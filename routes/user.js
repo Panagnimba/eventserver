@@ -44,6 +44,7 @@ router.post("/saveCommande",async (req,res)=>{
                 myCommande.price = prix
                 myCommande.img = evnt.img
                 myCommande.intitule = evnt.intitule
+                myCommande.eventDate = evnt.date
                 // 
                 for(j=0;j<commandes[i].qte;j++){
                     if(commandes[i].useSameNameInfo)
