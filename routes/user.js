@@ -3,6 +3,17 @@ let router = express.Router();
 let Event = require("../database/models/event.js");
 let Commande = require("../database/models/commande.js");
 
+// 
+var QRCode = require('qrcode')
+
+let ImageKi = require("imagekit");
+
+let ImageKit = new ImageKi({
+    publicKey : "public_xGsp4GcRJJjwYluoGenupRC2gy4=",
+    privateKey : "private_sc+xzMyqqKwiwRuTHpQN2YKDSj0=",
+    urlEndpoint : "https://ik.imagekit.io/g8k0fkvg9/Events"
+});
+// 
 let connection = require("../database/connection.js")
 
 // connection to database
@@ -10,7 +21,6 @@ let conn = connection();
 
 router.post("/saveCommande",async (req,res)=>{
     // console.log(req.body)
-    let ids= []
     let myCommande = {
         paymentMethod:req.body.paymentMethod,
         // 
@@ -29,7 +39,7 @@ router.post("/saveCommande",async (req,res)=>{
             if(evnt != null){
                 let prixItem = evnt.prices.filter(prix=>prix.type == commandes[i].type)
                 let prix = prixItem[0].price
-                console.log(prix)
+
                 // 
                 myCommande.price = prix
                 myCommande.img = evnt.img
@@ -41,9 +51,18 @@ router.post("/saveCommande",async (req,res)=>{
                         else
                         myCommande.beneficiaireName = commandes[i].beneficiairesNames[j]
                     //
-                    let cmmde = new Commande(myCommande);
+                    let cmmde =   new Commande(myCommande);
+                    let idt_unik_cmmde =   cmmde._id;
+              
+                    // 
+                    let qrcodeBase64 = await QRCode.toDataURL(`${idt_unik_cmmde}`)
+                    let response = await ImageKit.upload({file : qrcodeBase64,fileName : "commade_qr.png"});
+                    // 
+                    cmmde._id = idt_unik_cmmde
+                    cmmde.fileId = response.fileId
+                    cmmde.qrcode = response.url
+                   
                     await cmmde.save()
-                    ids.push(cmmde._id)
                 }
             }
             else{
@@ -54,7 +73,6 @@ router.post("/saveCommande",async (req,res)=>{
         }
         //   
         await session.commitTransaction();
-        console.log(ids)
         res.json({ success: true, message: "Commande enregistrée \n Vous pouvez consulter vos tickets sur votre profile" });
     }catch (error) 
     {
@@ -65,5 +83,14 @@ router.post("/saveCommande",async (req,res)=>{
     //   
       session.endSession();
 })
-
+// 
+router.get("/mesCommandes/:id",async(req,res)=>{
+    try{
+        let commandeList = await Commande.find({clientId:req.params.id});
+        res.status(200).json({success:true,message:"Successfuly get commandes list",result:commandeList})
+    }catch(error){
+      console.log(error)
+      res.json({success:false,message:error.message})
+    }
+  })
 module.exports = router
