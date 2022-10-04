@@ -5,11 +5,11 @@ let bcrypt = require("bcrypt");
 let cookieParser = require("cookie-parser");
 let path = require("path");
 // HOME
-let Menu = require("./database/models/menu.js")
-let Banner = require("./database/models/banner.js")
-let Event = require("./database/models/event.js")
+let Menu = require("./database/models/menu.js");
+let Banner = require("./database/models/banner.js");
+let Event = require("./database/models/event.js");
 let Paralax = require("./database/models/paralax.js");
-// 
+//
 let app = express();
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
@@ -26,13 +26,11 @@ app.use(
 );
 app.use(cookieParser());
 
-
-
 let connection = require("./database/connection.js");
 let User = require("./database/models/user.js");
 let UserAuth = require("./auth/user-auth");
 let checkLoggin = require("./auth/checkUserAuthentication");
-// 
+//
 let Admin = require("./database/models/admin.js");
 let AdminAuth = require("./auth/admin-auth");
 let Auth = require("./auth/authenticate_middleware");
@@ -44,7 +42,7 @@ let adminRoute = require("./routes/admin");
 let userRoute = require("./routes/user");
 app.use("/eventh24", Auth.isAdminAuthenticated, adminRoute);
 app.use("/user", checkLoggin.isUserAuthenticated, userRoute);
-// 
+//
 app.post("/adminLoggin", async (req, res) => {
   try {
     let docs = await Admin.find({ username: req.body.username });
@@ -103,18 +101,15 @@ app.post("/userRegister", async (req, res) => {
   try {
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(req.body.password, salt);
-     // adaption du numero de telephone
-     req.body.tel = req.body.tel.replace(/\s/g,'')
-     let phone = req.body.tel;
-     if (
-       !phone.startsWith("+226") &&
-       !phone.startsWith("00226")
-     ) {
-       req.body.tel = `+226${phone}`;
-     }
-     if (phone.startsWith("00226")) {
-       req.body.tel = `+226${phone.slice(5)}`;
-     }
+    // adaption du numero de telephone
+    req.body.tel = req.body.tel.replace(/\s/g, "");
+    let phone = req.body.tel;
+    if (!phone.startsWith("+226") && !phone.startsWith("00226")) {
+      req.body.tel = `+226${phone}`;
+    }
+    if (phone.startsWith("00226")) {
+      req.body.tel = `+226${phone.slice(5)}`;
+    }
     //
     let user = new User({
       nom: req.body.nom,
@@ -131,9 +126,8 @@ app.post("/userRegister", async (req, res) => {
       success: true,
       message: "Compte créé avec succès",
       token: token,
-      user:userDoc
+      user: userDoc,
     });
-
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });
@@ -141,96 +135,116 @@ app.post("/userRegister", async (req, res) => {
 });
 app.post("/userLoggin", async (req, res) => {
   try {
-        // adaption du numero de telephone
-        req.body.tel = req.body.tel.replace(/\s/g,'')
-        let phone = req.body.tel;
-        if (
-          !phone.startsWith("+226") &&
-          !phone.startsWith("00226")
-        ) {
-          req.body.tel = `+226${phone}`;
-        }
-        if (phone.startsWith("00226")) {
-          req.body.tel = `+226${phone.slice(5)}`;
-        }
-        // 
-        let user = await User.findOne({ tel: req.body.tel });
-        match = bcrypt.compareSync(req.body.password, user.password);
-        if (match) {
-          let userDoc = { _id: user._id, tel: user.tel, prenom: user.prenom };
-          let token = UserAuth.generateToken(userDoc);
-          res.status(200).json({
-            success: true,
-            message: "Authentification réussie",
-            token: token,
-            user:userDoc
-          });
-        }
-        else
-          res.json({ success: false, message: "Authentification échouée" });
+    // adaption du numero de telephone
+    req.body.tel = req.body.tel.replace(/\s/g, "");
+    let phone = req.body.tel;
+    if (!phone.startsWith("+226") && !phone.startsWith("00226")) {
+      req.body.tel = `+226${phone}`;
+    }
+    if (phone.startsWith("00226")) {
+      req.body.tel = `+226${phone.slice(5)}`;
+    }
+    //
+    let user = await User.findOne({ tel: req.body.tel });
+    match = bcrypt.compareSync(req.body.password, user.password);
+    if (match) {
+      let userDoc = { _id: user._id, tel: user.tel, prenom: user.prenom };
+      let token = UserAuth.generateToken(userDoc);
+      res.status(200).json({
+        success: true,
+        message: "Authentification réussie",
+        token: token,
+        user: userDoc,
+      });
+    } else res.json({ success: false, message: "Authentification échouée" });
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });
   }
 });
 // HOME PAGE
-app.get("/getMenus",async(req,res)=>{
-  try{
-      let menus = await Menu.find();
-    
-      res.status(200).json({success:true,message:"Successfuly get list of menus",result:menus})
-   
-  }catch(error){
-    console.log(error)
-    res.json({success:false,message:error.message})
-  }
-})
+app.get("/getMenus", async (req, res) => {
+  try {
+    let menus = await Menu.find();
 
-app.get("/getBanner",async (req,res)=>{
-  try{
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "Successfuly get list of menus",
+        result: menus,
+      });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+});
+
+app.get("/getBanner", async (req, res) => {
+  try {
     let banner = await Banner.findOne();
-  
-    res.status(200).json({success:true,message:"Successfuly get Slider items",result:banner})
- 
-}catch(error){
-  console.log(error)
-  res.json({success:false,message:error.message})
-}
-})
 
-app.get("/getEvents",async(req,res)=>{
-  try{
-      let event = await Event.find();
-    
-      res.status(200).json({success:true,message:"Successfuly get events list",result:event})
-   
-  }catch(error){
-    console.log(error)
-    res.json({success:false,message:error.message})
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "Successfuly get Slider items",
+        result: banner,
+      });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
   }
-})
+});
 
-app.get("/getEvent/:id",async(req,res)=>{
-  try{
-      let event = await Event.find({_id:req.params.id});
-      res.status(200).json({success:true,message:"Successfuly get events list",result:event[0]})
-   
-  }catch(error){
-    console.log(error)
-    res.json({success:false,message:error.message})
+app.get("/getEvents", async (req, res) => {
+  try {
+    let event = await Event.find();
+
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "Successfuly get events list",
+        result: event,
+      });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
   }
-})
+});
+
+app.get("/getEvent/:id", async (req, res) => {
+  try {
+    let event = await Event.find({ _id: req.params.id });
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "Successfuly get events list",
+        result: event[0],
+      });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+});
 // Paralax
-app.get("/getParalax",async (req,res)=>{
-  try{
+app.get("/getParalax", async (req, res) => {
+  try {
     let paralax = await Paralax.findOne();
-  
-    res.status(200).json({success:true,message:"Successfuly get paralax",result:paralax})
- 
-}catch(error){
-  console.log(error)
-  res.json({success:false,message:error.message})
-}
-})
+
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "Successfuly get paralax",
+        result: paralax,
+      });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+});
 let port = process.env.PORT || 9000;
 app.listen(port, () => console.log("Server listenning on port ", port));

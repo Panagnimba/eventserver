@@ -6,6 +6,8 @@ let Menu = require("../database/models/menu.js")
 let Banner = require("../database/models/banner.js")
 let Event = require("../database/models/event.js");
 let Paralax = require("../database/models/paralax.js");
+let Commande = require("../database/models/commande.js");
+
 // for file upload//  let ImageKit = require("../imagekit/imagekit.js"); 
 
 let ImageKi = require("imagekit");
@@ -204,5 +206,10 @@ router.get("/getParalax",async (req,res)=>{
   console.log(error)
   res.json({success:false,message:error.message})
 }
+})
+
+// Commande
+router.post("/deleteCommande/:id",(req,res)=>{
+  res.status(200).json({success:true,message:"Successfuly check the ticket",result:req.params.id})
 })
 module.exports = router
