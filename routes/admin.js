@@ -209,7 +209,7 @@ router.get("/getParalax",async (req,res)=>{
 })
 
 // Commande
-router.post("/deleteCommande/:id",(req,res)=>{
-  res.status(200).json({success:true,message:"Successfuly check the ticket",result:req.params.id})
+router.post("/deleteCommande",(req,res)=>{
+  res.status(200).json({success:true,message:"Successfuly check the ticket",result:req.body.id})
 })
 module.exports = router
