@@ -208,8 +208,14 @@ router.get("/getParalax",async (req,res)=>{
 }
 })
 
-// Commande
-router.post("/deleteCommande",(req,res)=>{
-  res.status(200).json({success:true,message:"Successfuly check the ticket",result:req.body.id})
+// Commande delete when scannning
+router.post("/deleteCommande",async(req,res)=>{
+  let cmmde = await Commande.findOne({_id:req.body.commandeId,eventId:req.body.eventId});
+  if(cmmde){
+    res.status(200).json({success:true,message:"Successfuly check the ticket"})
+  }else{
+    res.status(200).json({success:false,message:"Ticket non valide"})
+
+  }
 })
 module.exports = router

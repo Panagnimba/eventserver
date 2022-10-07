@@ -14,7 +14,8 @@ let ImageKit = new ImageKi({
     urlEndpoint : "https://ik.imagekit.io/g8k0fkvg9/Events"
 });
 // 
-let connection = require("../database/connection.js")
+let connection = require("../database/connection.js");
+const { default: mongoose } = require("mongoose");
 
 // connection to database
 let conn = connection();
@@ -29,13 +30,15 @@ router.post("/saveCommande",async (req,res)=>{
         clientPremon:req.body.client.prenom
     }
     let commandes = req.body.items; // liste des evenements à commander
-    const session = await conn.startSession();
+    const session = await mongoose.startSession();
     try{
         session.startTransaction();    
         // 
         for(i=0;i<commandes.length;i++)
         {
             let evnt = await Event.findOne({_id:commandes[i]._id},{intitule:1,img:1,date:1,prices:1})
+            myCommande.eventId = evnt._id;
+            
             if(evnt != null){
                 let prixItem = evnt.prices.filter(prix=>prix.type == commandes[i].type)
                 let prix = prixItem[0].price
@@ -54,7 +57,6 @@ router.post("/saveCommande",async (req,res)=>{
                     //
                     let cmmde =   new Commande(myCommande);
                     let idt_unik_cmmde =   cmmde._id;
-              
                     // 
                     let qrcodeBase64 = await QRCode.toDataURL(`${idt_unik_cmmde}`)
                     let response = await ImageKit.upload({file : qrcodeBase64,fileName : "commade_qr.png"});
@@ -63,13 +65,12 @@ router.post("/saveCommande",async (req,res)=>{
                     cmmde.fileId = response.fileId
                     cmmde.qrcode = response.url
                    
-                    await cmmde.save()
+                    await cmmde.save({session})
                 }
             }
             else{
-                await session.abortTransaction();
-                res.json({ success: false, eventNonDispo:true,eventId:commandes[i]._id,message: "Evènement de commande non disponible"});
-                break
+                // 
+                throw { success: false, eventNonDispo:true,eventId:commandes[i]._id,message: "Evènement de commande non disponible"};   
             }
         }
         //   
@@ -79,6 +80,8 @@ router.post("/saveCommande",async (req,res)=>{
     {
         console.log(error);
         await session.abortTransaction();
+        //   
+        session.endSession();
         res.json({ success: false, message: error.message });
       }
     //   
