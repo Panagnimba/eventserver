@@ -210,6 +210,7 @@ router.get("/getParalax",async (req,res)=>{
 
 // Commande delete when scannning
 router.post("/deleteCommande",async(req,res)=>{
+  // check if the event co
   let cmmde = await Commande.findOne({_id:req.body.commandeId,eventId:req.body.eventId});
   if(cmmde){
     res.status(200).json({success:true,message:"Successfuly check the ticket"})

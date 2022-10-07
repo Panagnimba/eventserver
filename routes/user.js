@@ -58,7 +58,7 @@ router.post("/saveCommande",async (req,res)=>{
                     let cmmde =   new Commande(myCommande);
                     let idt_unik_cmmde =   cmmde._id;
                     // 
-                    let qrcodeBase64 = await QRCode.toDataURL(`${idt_unik_cmmde}`)
+                    let qrcodeBase64 = await QRCode.toDataURL(`${idt_unik_cmmde}|${myCommande.eventId}`)
                     let response = await ImageKit.upload({file : qrcodeBase64,fileName : "commade_qr.png"});
                     // 
                     cmmde._id = idt_unik_cmmde
