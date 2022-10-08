@@ -7,6 +7,8 @@ let Banner = require("../database/models/banner.js")
 let Event = require("../database/models/event.js");
 let Paralax = require("../database/models/paralax.js");
 let Commande = require("../database/models/commande.js");
+let Tmpcommande = require("../database/models/tmpCommande.js");
+
 
 // for file upload//  let ImageKit = require("../imagekit/imagekit.js"); 
 
@@ -210,13 +212,27 @@ router.get("/getParalax",async (req,res)=>{
 
 // Commande delete when scannning
 router.post("/deleteCommande",async(req,res)=>{
-  // check if the event co
-  let cmmde = await Commande.findOne({_id:req.body.commandeId,eventId:req.body.eventId});
-  if(cmmde){
-    res.status(200).json({success:true,message:"Successfuly check the ticket"})
-  }else{
-    res.status(200).json({success:false,message:"Ticket non valide"})
-
+  const session = await conn.startSession();
+  try{
+        session.startTransaction();
+        // 
+        let cmmde = await Tmpcommande.findOneAndDelete({_id:req.body.commandeId,eventId:req.body.eventId});
+        if(cmmde){
+          // delete file
+          await ImageKit.deleteFile(cmmde.fileId);
+          // 
+          res.status(200).json({success:true,message:"Successfuly check the ticket"})
+        }else{
+          res.status(200).json({success:false,message:"Cet ticket ne correspond à aucune commande (ticket déjà utiliser)"})
+        }
+        // 
+        await session.commitTransaction();
+    }catch(error){
+    console.log(error)
+    await session.abortTransaction();
+    session.endSession();
+    res.json({success:false,message:error.message})
   }
+  session.endSession();
 })
 module.exports = router

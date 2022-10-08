@@ -2,6 +2,7 @@ let express = require("express")
 let router = express.Router();
 let Event = require("../database/models/event.js");
 let Commande = require("../database/models/commande.js");
+let Tmpcommande = require("../database/models/tmpCommande.js");
 
 // 
 var QRCode = require('qrcode')
@@ -61,11 +62,14 @@ router.post("/saveCommande",async (req,res)=>{
                     let qrcodeBase64 = await QRCode.toDataURL(`${idt_unik_cmmde}|${myCommande.eventId}`)
                     let response = await ImageKit.upload({file : qrcodeBase64,fileName : "commade_qr.png"});
                     // 
-                    cmmde._id = idt_unik_cmmde
-                    cmmde.fileId = response.fileId
-                    cmmde.qrcode = response.url
-                   
-                    await cmmde.save({session})
+                    cmmde._id = idt_unik_cmmde;
+                    myCommande.fileId = cmmde.fileId = response.fileId;
+                    myCommande.qrcode = cmmde.qrcode = response.url;
+                    // Collection temporarire des commandes
+                    await cmmde.save({session}) // historique des commandes (jamais supprimé)
+                    let tmpCmmde = new Tmpcommande(myCommande)
+                    tmpCmmde._id = idt_unik_cmmde;
+                    await tmpCmmde.save({session})
                 }
             }
             else{
@@ -90,7 +94,7 @@ router.post("/saveCommande",async (req,res)=>{
 // 
 router.get("/mesCommandes/:id",async(req,res)=>{
     try{
-        let commandeList = await Commande.find({clientId:req.params.id});
+        let commandeList = await Tmpcommande.find({clientId:req.params.id});
         res.status(200).json({success:true,message:"Successfuly get commandes list",result:commandeList})
     }catch(error){
       console.log(error)
