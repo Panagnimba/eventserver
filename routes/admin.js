@@ -208,8 +208,9 @@ router.post('/saveParalax',async(req,res)=>{
   try{
        // ---------- background image saving on the server--------------
        if(data.bgImage.includes('data:image')){
-        if(data.fileId)
-         await ImageKit.deleteFile(data.fileId);
+        try{
+          await ImageKit.deleteFile(data.fileId);
+        }catch(err){console.log(err.message)}
          // 
         let response = await ImageKit.upload({file : data.bgImage,fileName : "paralax_bg.png"});
         data.bgImage = response.url
