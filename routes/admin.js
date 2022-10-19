@@ -72,14 +72,49 @@ router.post('/saveBanner',async(req,res)=>{
   try{
        // ---------- background image saving on the server--------------
        if(data.bgImage.includes('data:image')){
-        let response = await ImageKit.upload({file : data.bgImage,fileName : "banner_bg.png"});
-        data.bgImage = response.url
+            try{
+              if(data.fileId)
+                await ImageKit.deleteFile(data.fileId);
+            }catch(e){
+              console.log(e.message)
+            }
+          let response = await ImageKit.upload({file : data.bgImage,fileName : "banner_bg.png"});
+          data.bgImage = response.url
+          data.fileId = response.fileId
       }
       // ---------- Items images saving on the server -----------------
-      for(i=0; i<data.items.length;i++){
-        if(data.items[i].img.includes('data:image')){
-          let response =  await ImageKit.upload({file : data.items[i].img,fileName : "banner_item.png"});
-          data.items[i].img = response.url
+          let mybanner = await Banner.findOne();
+          let itemsSize = data.items.length ;
+          if(mybanner)
+            itemsSize = (data.items.length>mybanner.items.length)?data.items.length:mybanner.items.length;
+      for(i=0; i<itemsSize;i++){
+        if(i < data.items.length)
+        {
+          if(data.items[i].img.includes('data:image'))
+          { 
+            let response =  await ImageKit.upload({file : data.items[i].img,fileName : "banner_item.png"});
+            data.items[i].img = response.url
+            data.items[i].fileId = response.fileId
+            try{
+              if(mybanner){
+                if((i < mybanner.items.length) && mybanner.items[i].fileId)
+                await ImageKit.deleteFile(mybanner.items[i].fileId);
+              }
+            }
+            catch(e){
+              console.log(e.message)
+            }
+          }
+        }
+        else if(mybanner)
+        {
+          try{
+            if(mybanner.items[i].fileId)
+                await ImageKit.deleteFile(mybanner.items[i].fileId);
+          }
+          catch(e){
+            console.log(e.message)
+          }
         }
       } 
       // ----------- Now store data to the database----------
@@ -156,11 +191,10 @@ router.get("/getEvents",async(req,res)=>{
 })
 
 router.post("/deleteEvent",async(req,res)=>{
-  let path = "./uploads/event"
   try{
-    await Event.deleteOne({_id:req.body.id})
-    let imgName = `${req.body.id}.png`
-    fs.unlinkSync(`${path}/${imgName}`) //delete file 
+    let evnt = await Event.findOneAndDelete({_id:req.body.id})
+    if(evnt.fileId)
+         await ImageKit.deleteFile(evnt.fileId);
     res.status(200).json({success:true,message:"Evènement supprimé avec succès"})
   }catch(error){
     console.log(error)
@@ -174,6 +208,9 @@ router.post('/saveParalax',async(req,res)=>{
   try{
        // ---------- background image saving on the server--------------
        if(data.bgImage.includes('data:image')){
+        if(data.fileId)
+         await ImageKit.deleteFile(data.fileId);
+         // 
         let response = await ImageKit.upload({file : data.bgImage,fileName : "paralax_bg.png"});
         data.bgImage = response.url
         data.fileId = response.fileId
@@ -189,8 +226,7 @@ router.post('/saveParalax',async(req,res)=>{
       }
       else
       {
-   
-        await Paralax.updateOne({_id:data._id},{bgImage:data.bgImage,textContent:data.textContent})
+        await Paralax.updateOne({_id:data._id},{bgImage:data.bgImage,fileId:data.fileId,textContent:data.textContent})
         res.json({success:true,message:"Mise à jour du paralax réussie"})
       }
   }catch(error){
