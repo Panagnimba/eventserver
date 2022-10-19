@@ -19,6 +19,7 @@ app.use(
     origin: [
       "https://serverticket.herokuapp.com",
       "https://eventh24.herokuapp.com",
+      'http://eventh24.herokuapp.com',
       "http://localhost:3000",
     ],
     credentials: true,
