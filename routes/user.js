@@ -12,7 +12,7 @@ let ImageKi = require("imagekit");
 let ImageKit = new ImageKi({
     publicKey : "public_xGsp4GcRJJjwYluoGenupRC2gy4=",
     privateKey : "private_sc+xzMyqqKwiwRuTHpQN2YKDSj0=",
-    urlEndpoint : "https://ik.imagekit.io/g8k0fkvg9/Events"
+    urlEndpoint : "https://ik.imagekit.io/g8k0fkvg9/"
 });
 // 
 let connection = require("../database/connection.js");
@@ -22,6 +22,8 @@ const { default: mongoose } = require("mongoose");
 let conn = connection();
 
 router.post("/saveCommande",async (req,res)=>{
+    let montant = 0;
+    fileIds = [];
     // console.log(req.body)
     let myCommande = {
         paymentMethod:req.body.paymentMethod,
@@ -43,7 +45,6 @@ router.post("/saveCommande",async (req,res)=>{
             if(evnt != null){
                 let prixItem = evnt.prices.filter(prix=>prix.type == commandes[i].type)
                 let prix = prixItem[0].price
-
                 // 
                 myCommande.price = prix
                 myCommande.img = evnt.img
@@ -51,6 +52,9 @@ router.post("/saveCommande",async (req,res)=>{
                 myCommande.eventDate = evnt.date
                 // 
                 for(j=0;j<commandes[i].qte;j++){
+                    // total a payer
+                    montant += parseFloat(myCommande.price) 
+                    // 
                     if(commandes[i].useSameNameInfo)
                         myCommande.beneficiaireName = commandes[i].beneficiairesNames[0]
                         else
@@ -60,7 +64,11 @@ router.post("/saveCommande",async (req,res)=>{
                     let idt_unik_cmmde =   cmmde._id;
                     // 
                     let qrcodeBase64 = await QRCode.toDataURL(`${idt_unik_cmmde}|${myCommande.eventId}`)
-                    let response = await ImageKit.upload({file : qrcodeBase64,fileName : "commade_qr.png"});
+                    let folderName = myCommande.eventDate.replace(/:/g, "h");
+                    let response = await ImageKit.upload({file : qrcodeBase64,fileName : "commade_qr.png",folder:`/Commandes/${folderName}`});
+                    // fileIds qui sera utiliser pour supprimer l'image qr
+                    // en cas d'erreur
+                    fileIds.push(response.fileId)
                     // 
                     cmmde._id = idt_unik_cmmde;
                     myCommande.fileId = cmmde.fileId = response.fileId;
@@ -79,17 +87,22 @@ router.post("/saveCommande",async (req,res)=>{
         }
         //   
         await session.commitTransaction();
+        session.endSession();
+        console.log(montant)
         res.json({ success: true, message: "Commande enregistrée \n Vous pouvez consulter vos tickets sur votre profile" });
     }catch (error) 
     {
         console.log(error);
         await session.abortTransaction();
-        //   
+        // 
+            // delete file
+            try{
+                await ImageKit.bulkDeleteFiles(fileIds);
+              }catch(e){console.log(e.message)}
+        //         
         session.endSession();
         res.json({ success: false, message: error.message });
       }
-    //   
-      session.endSession();
 })
 // 
 router.get("/mesCommandes/:id",async(req,res)=>{
