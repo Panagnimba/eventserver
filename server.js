@@ -200,9 +200,19 @@ app.get("/getBanner", async (req, res) => {
 
 app.get("/getEvents", async (req, res) => {
   try {
-    let event = await Event.find();
-    console.log("---------------------------------")
-    console.log(Date.now())
+    let event = []
+    let allEvents = await Event.find();
+// event still also visible in the home page 
+//before 1 day after the expire event date
+    let currentDate = new Date().getTime()
+    allEvents.forEach(evt=>{
+      evtDate = new Date(evt.date).getTime()
+      if(evtDate > (currentDate - 24*60*60*1000)) // current date - 1 day
+      {
+        event.push(evt)
+      }  
+    })
+
     res
       .status(200)
       .json({
@@ -218,16 +228,29 @@ app.get("/getEvents", async (req, res) => {
 
 app.get("/getEvent/:id", async (req, res) => {
   try {
-    let event = await Event.find({ _id: req.params.id });
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Successfuly get events list",
-        result: event[0],
-      });
-  } catch (error) {
-    console.log(error);
+      let event = await Event.findOne({ _id: req.params.id });
+    if(event)
+    {
+        let currentDate = new Date().getTime()
+        let evtDate = new Date(event.date).getTime()
+        if(evtDate > currentDate) 
+        {
+          res
+            .status(200)
+            .json({
+              success: true,
+              message: "Successfuly get events list",
+              result: event,
+            });
+        }
+        else
+        res.json({ success: false, message:"Event not available (time past)" });
+        
+    }
+    else
+      res.json({ success: false, message:"Event not found (invalid event)" });
+    } catch (error) {
+    console.log(error.message);
     res.json({ success: false, message: error.message });
   }
 });
