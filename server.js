@@ -201,7 +201,8 @@ app.get("/getBanner", async (req, res) => {
 app.get("/getEvents", async (req, res) => {
   try {
     let event = await Event.find();
-
+    console.log("---------------------------------")
+    console.log(Date.now())
     res
       .status(200)
       .json({
