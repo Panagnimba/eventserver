@@ -237,12 +237,17 @@ router.get("/getEvents", async (req, res) => {
 router.post("/deleteEvent", async (req, res) => {
   try {
     let evnt = await Event.findOneAndDelete({ _id: req.body.id });
-    if (evnt.fileId) await ImageKit.deleteFile(evnt.fileId);
+    if (evnt)
+    {
+        try{
+          await ImageKit.deleteFile(evnt.fileId); 
+        }catch(e){console.log(e.message)}
+    }
     res
       .status(200)
       .json({ success: true, message: "Evènement supprimé avec succès" });
   } catch (error) {
-    console.log(error);
+    console.log(error.message);
     res.json({ success: false, message: error.message });
   }
 });
@@ -252,19 +257,18 @@ router.post("/saveParalax", async (req, res) => {
   let data = req.body;
   try {
     // ---------- background image saving on the server--------------
-    if (data.bgImage.includes("data:image")) {
-      try {
-        await ImageKit.deleteFile(data.fileId);
-      } catch (err) {
-        console.log(err.message);
-      }
+    if (data.bgImage.includes("data:image"))
+     {
+        try {
+          await ImageKit.deleteFile(data.fileId);
+        } catch (err) {console.log(err.message);}
       //
-      let response = await ImageKit.upload({
-        file: data.bgImage,
-        fileName: "paralax_bg.png",
-      });
-      data.bgImage = response.url;
-      data.fileId = response.fileId;
+        let response = await ImageKit.upload({
+          file: data.bgImage,
+          fileName: "paralax_bg.png",
+        });
+        data.bgImage = response.url;
+        data.fileId = response.fileId;
     }
 
     // ----------- Now store data to the database----------
@@ -315,8 +319,11 @@ router.post("/deleteCommande", async (req, res) => {
     session.startTransaction();
     //
     let cmmde = await Tmpcommande.findOneAndDelete({_id: req.body.commandeId,eventId: req.body.eventId},{session});
-    if (cmmde) {
-      await ImageKit.deleteFile(cmmde.fileId);
+    if (cmmde) 
+    {
+      try{
+          await ImageKit.deleteFile(cmmde.fileId);
+        }catch(e){console.log(e.message)}
       //
       res
         .status(200)
@@ -334,10 +341,10 @@ router.post("/deleteCommande", async (req, res) => {
       await session.commitTransaction();
       session.endSession();
   } catch (error) {
-    console.log(error);
     await session.abortTransaction();
     session.endSession();
     res.json({ success: false, message: error.message });
   }
 });
+
 module.exports = router;
