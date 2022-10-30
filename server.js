@@ -237,12 +237,14 @@ app.get("/getEvent/:id", async (req, res) => {
         let evtDate = new Date(event.date).getTime()
         if(evtDate > currentDate) 
         {
+          let copy = JSON.parse(JSON.stringify(event));
+          copy.gmtDate = currentDate
           res
             .status(200)
             .json({
               success: true,
               message: "Successfuly get events list",
-              result: event,
+              result: copy,
             });
         }
         else
