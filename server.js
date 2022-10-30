@@ -209,7 +209,9 @@ app.get("/getEvents", async (req, res) => {
       evtDate = new Date(evt.date).getTime()
       if(evtDate > (currentDate - 24*60*60*1000)) // current date - 1 day
       {
-        event.push(evt)
+        let copy = JSON.parse(JSON.stringify(evt));
+        copy.gmtDate = currentDate
+        event.push(copy)
       }  
     })
 
