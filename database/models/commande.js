@@ -4,6 +4,7 @@ let commandeSchema = new mongoose.Schema({
 
     paymentMethod:{type: String,required: true},
     price:{type: Number,required: true},
+    type:{type: String,required: true},
     img:{type: String,required: true},
     intitule:{type: String,required: true},
     eventId:{type:mongoose.Schema.Types.ObjectId,required: true},

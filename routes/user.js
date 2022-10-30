@@ -51,8 +51,10 @@ router.post("/saveCommande",async (req,res)=>{
                 {
                     let prixItem = evnt.prices.filter(prix=>prix.type == commandes[i].type)
                     let prix = prixItem[0].price
+                    let type = prixItem[0].type
                     // 
                     myCommande.price = prix
+                    myCommande.type = type
                     myCommande.img = evnt.img
                     myCommande.intitule = evnt.intitule
                     myCommande.eventDate = evnt.date
