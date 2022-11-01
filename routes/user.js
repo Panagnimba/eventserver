@@ -122,13 +122,17 @@ router.get("/mesCommandes/:id",async(req,res)=>{
         let commandeList = await Tmpcommande.find({clientId:req.params.id});
         //
         let currentDate = new Date().getTime()
-        commandeList.forEach(cmde=>{
-            let evtDate = new Date(cmde.eventDate).getTime()
-            if(evtDate > (currentDate - 24*60*60*1000)) // after expire date + 1 day ticket will not be showed
-            {
-                commandes.push(cmde)
-            }
-        })
+        for(let i=0 ; i< commandeList.length;i++)
+        {
+              // 
+              let event =  await Event.findOne({ _id: commandeList[i].eventId });
+              let evtDate = new Date(event.date).getTime()
+              //
+              if(evtDate > (currentDate - 24*60*60*1000)) // after expire date + 1 day ticket will not be showed
+              {
+                  commandes.push(commandeList[i])
+              }
+        }
         res.status(200).json({success:true,message:"Successfuly get commandes list",result:commandes})
     }catch(error){
       console.log(error.message)

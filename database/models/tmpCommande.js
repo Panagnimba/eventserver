@@ -4,7 +4,7 @@ let tmpcommandeSchema = new mongoose.Schema({
     _id:{type:mongoose.Schema.Types.ObjectId,required: true},
     paymentMethod:{type: String,required: true},
     price:{type: Number,required: true},
-    type:{type: String,required: true},
+    type:{type: String,required: true},// categorie: normal couple VIP
     img:{type: String,required: true},
     intitule:{type: String,required: true},
     eventId:{type:mongoose.Schema.Types.ObjectId,required: true},

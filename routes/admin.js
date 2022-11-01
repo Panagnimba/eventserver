@@ -327,14 +327,14 @@ router.post("/deleteCommande", async (req, res) => {
       //
       res
         .status(200)
-        .json({ success: true, message: "Successfuly check the ticket" });
+        .json({ success: true, message: "Successfuly check the ticket",categorie:cmmde.type });
     } else {
       res
         .status(200)
         .json({
           success: false,
           message:
-            "Cet ticket ne correspond à aucune commande (ticket déjà utiliser)",
+            "Cet ticket ne correspond à aucune commande (ticket déjà utiliser)"
         });
     }
     //
