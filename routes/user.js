@@ -3,6 +3,7 @@ let router = express.Router();
 let Event = require("../database/models/event.js");
 let Commande = require("../database/models/commande.js");
 let Tmpcommande = require("../database/models/tmpCommande.js");
+let createTicket = require("../ticket/createTicket");
 
 // 
 var QRCode = require('qrcode')
@@ -39,8 +40,11 @@ router.post("/saveCommande",async (req,res)=>{
         // 
         for(i=0;i<commandes.length;i++)
         {
-            let evnt = await Event.findOne({_id:commandes[i]._id},{intitule:1,img:1,date:1,prices:1})
+            let evnt = await Event.findOne({_id:commandes[i]._id},{intitule:1,img:1,date:1,prices:1,openTime:1,lieu:1})
             myCommande.eventId = evnt._id;
+            // utiliser uniquement dans la generation automatique du ticket
+            myCommande.openTime = evnt.openTime;
+            myCommande.lieu = evnt.lieu;
         
             if(evnt != null)
             {
@@ -72,8 +76,11 @@ router.post("/saveCommande",async (req,res)=>{
                         let idt_unik_cmmde =   cmmde._id;
                         // 
                         let qrcodeBase64 = await QRCode.toDataURL(`${idt_unik_cmmde}|${myCommande.eventId}`)
+                        // 
+                        let ticket = await createTicket(myCommande.img,qrcodeBase64,myCommande.intitule,myCommande.openTime,myCommande.lieu,myCommande.beneficiaireName)
+                 
                         let folderName = myCommande.eventDate.replace(/:/g, "h");
-                        let response = await ImageKit.upload({file : qrcodeBase64,fileName : "commade_qr.png",folder:`/Commandes/${folderName}`});
+                        let response = await ImageKit.upload({file : ticket,fileName : "ticket.png",folder:`/Commandes/${folderName}`});
                         // fileIds qui sera utiliser pour supprimer l'image qr
                         // en cas d'erreur
                         fileIds.push(response.fileId)
@@ -139,4 +146,5 @@ router.get("/mesCommandes/:id",async(req,res)=>{
       res.json({success:false,message:error.message})
     }
   })
+  
 module.exports = router
