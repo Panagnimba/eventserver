@@ -27,7 +27,7 @@ async function createTicket(Pevtimg,pqrcode,peventtitle,pheure,plieu,pnomclient)
         
         ctx.strokeText(pheure, ((width+60)/2),(height/2))
     
-        ctx.font = '10pt Impact'
+        ctx.font = '10pt lobster'
         ctx.fillText(plieu, (width/2),(height-50))
         ctx.fillText(pnomclient, (width/2),(height-17))
     
