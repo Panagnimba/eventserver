@@ -1,5 +1,5 @@
 let express = require("express");
-let fs = require("fs");
+
 let router = express.Router();
 let connection = require("../database/connection.js");
 let Menu = require("../database/models/menu.js");
@@ -217,6 +217,7 @@ router.post("/saveNewEvent", async (req, res) => {
   }
 });
 
+// get all events without any condition
 router.get("/getEvents", async (req, res) => {
   try {
     let event = await Event.find();
@@ -230,6 +231,38 @@ router.get("/getEvents", async (req, res) => {
       });
   } catch (error) {
     console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+});
+// get events available for scanning
+// au moins un jour avant le spectacle et 5h apres
+router.get("/getScanEvents", async (req, res) => {
+  try {
+    let event = []
+    let allEvents = await Event.find();
+    let currentDate = new Date().getTime()
+    allEvents.forEach(evt=>{
+      evtDate = new Date(evt.date).getTime()
+      if(
+          currentDate > evtDate - 24 * 60 * 60 * 1000 &&
+          currentDate < evtDate + 5 * 60 * 60 * 1000
+        ) // au moins un jour avant le spectacle et 5h apres
+      {
+        let copy = JSON.parse(JSON.stringify(evt));
+        copy.gmtDate = currentDate
+        event.push(copy)
+      }  
+    })
+
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "Successfuly get events list",
+        result: event,
+      });
+  } catch (error) {
+    console.log(error.message);
     res.json({ success: false, message: error.message });
   }
 });

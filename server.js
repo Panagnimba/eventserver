@@ -29,20 +29,26 @@ app.use(cookieParser());
 
 let connection = require("./database/connection.js");
 let User = require("./database/models/user.js");
-let UserAuth = require("./auth/user-auth");
-let checkLoggin = require("./auth/checkUserAuthentication");
+let UserAuth = require("./auth/user_auth");
+let User_middleware = require("./auth/user_middleware");
 //
 let Admin = require("./database/models/admin.js");
-let AdminAuth = require("./auth/admin-auth");
-let Auth = require("./auth/authenticate_middleware");
+let AdminAuth = require("./auth/admin_auth");
+let Admin_middleware = require("./auth/admin_middleware");
+//
+let Partner = require("./database/models/partner.js");
+let PartnerAuth = require("./auth/partner_auth");
+let Partner_middleware = require("./auth/partner_middleware");
 // connection to database
 let conn = connection();
 
 // Routes
 let adminRoute = require("./routes/admin");
 let userRoute = require("./routes/user");
-app.use("/eventh24", Auth.isAdminAuthenticated, adminRoute);
-app.use("/user", checkLoggin.isUserAuthenticated, userRoute);
+let partnerRoute = require("./routes/partner");
+app.use("/eventh24", Admin_middleware.isAdminAuthenticated, adminRoute);
+app.use("/user", User_middleware.isUserAuthenticated, userRoute);
+app.use("/partner", Partner_middleware.isPartnerAuthenticated, partnerRoute);
 //
 app.post("/adminLoggin", async (req, res) => {
   try {
@@ -198,6 +204,8 @@ app.get("/getBanner", async (req, res) => {
   }
 });
 
+// event still also visible in the home page 
+//before 1 day after the expire event date
 app.get("/getEvents", async (req, res) => {
   try {
     let event = []

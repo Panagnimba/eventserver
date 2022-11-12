@@ -1,4 +1,4 @@
-let UserAuth = require("./user-auth")
+let UserAuth = require("./user_auth")
 
 function isUserAuthenticated(req,res,next){
     const authHeader = req.headers['authorization']

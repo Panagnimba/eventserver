@@ -1,4 +1,4 @@
-let AdminAuth = require("./admin-auth")
+let AdminAuth = require("./admin_auth")
 
 function isAdminAuthenticated(req,res,next){
     console.log("///////// Verify Authentication //////////")

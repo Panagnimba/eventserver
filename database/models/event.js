@@ -8,17 +8,23 @@ let eventSchema = new mongoose.Schema({
         intitule: {type:String,required:true},
         artiste: {type:String,required:true},
         date: {type:String,required:true},
-        openTime: {type:String},
+        openTime: {type:String,required:true},
         lieu: {type:String,required:true},
         description:{type:String},
-        prices: [
-          {
-            type: {type:String,required:true},
-            price: {type:Number,required:true},
-          },
-        ],
+        prices: {
+                    type:[
+                            {
+                              type: {type:String,required:true},
+                              price: {type:Number,required:true},
+                            },
+                          ],
+                    validate: [validateurPriceArray, 'Please add some price'],
+                },
         // 
-        publishDate:{type: Date,default: Date.now}
+        publishDate:{type: Date,default: Date.now},
 })
 
+function validateurPriceArray(prices) {
+  return prices.length >= 1;
+}
 module.exports =  mongoose.model("Event",eventSchema);
