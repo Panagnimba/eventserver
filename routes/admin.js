@@ -1,4 +1,5 @@
 let express = require("express");
+let bcrypt = require("bcrypt");
 
 let router = express.Router();
 let connection = require("../database/connection.js");
@@ -6,8 +7,12 @@ let Menu = require("../database/models/menu.js");
 let Banner = require("../database/models/banner.js");
 let Event = require("../database/models/event.js");
 let Paralax = require("../database/models/paralax.js");
+let Admin = require("../database/models/admin.js");
+let User = require("../database/models/user.js");
 let Commande = require("../database/models/commande.js");
 let Tmpcommande = require("../database/models/tmpCommande.js");
+// 
+let Partner = require("../database/models/partner.js");
 
 // for file upload//  let ImageKit = require("../imagekit/imagekit.js");
 
@@ -344,6 +349,130 @@ router.get("/getParalax", async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 });
+
+
+// 
+router.post("/createNewPartner", async (req, res) => {
+  try {
+    //
+    let partner = new Partner({
+      username: req.body.username,
+    });
+    // password will be Mongoose.ObjectId@PartnerPassword
+    partner.password = `${partner._id}@${req.body.password}`,
+    await partner.save();
+    res
+      .status(200)
+      .json({ success: true, message: "Nouveau partenaire créer avec succès" });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+});
+// get all partners 
+router.get("/getPartners", async (req, res) => {
+  try {
+    let partners = await Partner.find();
+
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "Successfuly get partners list",
+        result: partners,
+      });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+});
+// delete partner
+router.post("/deletePartner", async (req, res) => {
+  try {
+       await Partner.findOneAndDelete({ _id: req.body.id });
+    res
+      .status(200)
+      .json({ success: true, message: "Partenaire supprimé avec succès" });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+});
+// --------------------ADMIN-------------------------------------
+router.post("/createNewAdmin", async (req, res) => {
+  try {
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(req.body.password, salt);
+    //
+    let admin = new Admin({
+      username: req.body.username,
+      password: hash,
+      role: req.body.role,
+    });
+    await admin.save();
+    res
+      .status(200)
+      .json({ success: true, message: "Administrateur créer avec succès" });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+});
+// get all admins
+router.get("/getAdmins", async (req, res) => {
+  try {
+    let admins = await Admin.find();
+
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "Successfuly get admins list",
+        result: admins,
+      });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+});
+// delete admin
+router.post("/deleteAdmin", async (req, res) => {
+  try {
+       await Admin.findOneAndDelete({ _id: req.body.id });
+    res
+      .status(200)
+      .json({ success: true, message: "Administrateur supprimé avec succès" });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+});
+// ---------------------USERS------------------------------------------
+// get all users
+router.get("/getUsers", async (req, res) => {
+  try {
+    let users = await User.find();
+
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "Successfuly get users list",
+        result: users,
+      });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+});
+// delete admin
+router.post("/deleteUser", async (req, res) => {
+  try {
+       await User.findOneAndDelete({ _id: req.body.id });
+    res
+      .status(200)
+      .json({ success: true, message: "Utilisateur supprimé avec succès" });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+});
+
+
+
 
 // Commande delete when scannning
 router.post("/deleteCommande", async (req, res) => {

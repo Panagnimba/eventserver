@@ -50,6 +50,7 @@ app.use("/eventh24", Admin_middleware.isAdminAuthenticated, adminRoute);
 app.use("/user", User_middleware.isUserAuthenticated, userRoute);
 app.use("/partner", Partner_middleware.isPartnerAuthenticated, partnerRoute);
 //
+
 app.post("/adminLoggin", async (req, res) => {
   try {
     let docs = await Admin.find({ username: req.body.username });
@@ -83,23 +84,23 @@ app.post("/adminLoggin", async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 });
-
-app.post("/adminRegister", async (req, res) => {
+app.post("/partnerLoggin", async (req, res) => {
   try {
-    const salt = bcrypt.genSaltSync(10);
-    const hash = bcrypt.hashSync(req.body.password, salt);
-    //
-    let admin = new Admin({
-      username: req.body.username,
-      password: hash,
-      role: "admin",
-    });
-    await admin.save();
-    res
-      .status(200)
-      .json({ success: true, message: "Administrateur créer avec succès" });
+    let doc = await Partner.findOne({ username: req.body.username,password:req.body.password });
+    if (doc) {
+      let partner = {
+        username : doc.username,
+        password:doc.password,
+      }
+      let token = PartnerAuth.generateToken(partner);
+        res.status(200).json({
+          success: true,
+          message: "Authentification réussie",
+          token: token,
+        });
+    } else
+      res.json({ success: false, message: "Echec d'authentification" });
   } catch (error) {
-    console.log(error);
     res.json({ success: false, message: error.message });
   }
 });

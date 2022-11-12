@@ -1,7 +1,7 @@
 let AdminAuth = require("./admin_auth")
 
 function isAdminAuthenticated(req,res,next){
-    console.log("///////// Verify Authentication //////////")
+    console.log("///////// Verify Admin Authentication //////////")
     const authHeader = req.headers['authorization']
     let token = authHeader && authHeader.split(' ')[1]
     if(token == null || token == undefined) res.sendStatus(401)

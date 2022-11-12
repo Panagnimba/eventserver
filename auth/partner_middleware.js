@@ -5,7 +5,7 @@ function isPartnerAuthenticated(req,res,next){
     let token = authHeader && authHeader.split(' ')[1]
     if(token == null || token == undefined) res.sendStatus(401)
     
-    console.log("///////// Verify User Authentication //////////")
+    console.log("///////// Verify Partner Authentication //////////")
     let isAuth = PartnerAuth.verifyToken(token)
     if(isAuth)
         next()
